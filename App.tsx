@@ -10,8 +10,8 @@ import {
   useSafeAreaFrame,
 } from "react-native-safe-area-context";
 
-const DOT_WIDTH = 20;
-const TARGET_WIDTH = DOT_WIDTH * 2;
+const BALL_WIDTH = 20;
+const TARGET_WIDTH = BALL_WIDTH * 2;
 const TARGET_BORDER_WIDTH = 2;
 
 export default function App() {
@@ -32,23 +32,23 @@ export function Game() {
 
   const [score, setScore] = React.useState(0);
 
-  // Start with the dot in the centre of the playable screen area
-  const dotAnimation = useSharedValue({
-    x: (width - DOT_WIDTH) / 2,
-    y: (height - DOT_WIDTH) / 2,
+  // Start with the ball in the centre of the playable screen area
+  const ballAnimation = useSharedValue({
+    x: (width - BALL_WIDTH) / 2,
+    y: (height - BALL_WIDTH) / 2,
   });
 
   const targetAnimation = useSharedValue(getNewTargetPosition(width, height));
 
-  // Create the dot styles based on the current dotAnimation value
-  const dotPosition = useAnimatedStyle(() => ({
+  // Create the ball styles based on the current ballAnimation value
+  const ballPosition = useAnimatedStyle(() => ({
     transform: [
-      { translateX: dotAnimation.value.x },
-      { translateY: dotAnimation.value.y },
+      { translateX: ballAnimation.value.x },
+      { translateY: ballAnimation.value.y },
     ],
   }));
 
-  // Create the target styles based on the current dotAnimation value
+  // Create the target styles based on the current ballAnimation value
   const targetPosition = useAnimatedStyle(() => ({
     transform: [
       { translateX: targetAnimation.value.x },
@@ -56,34 +56,34 @@ export function Game() {
     ],
   }));
 
-  // Update the dot position based on the device motion sensor.
-  // We also need to make sure the dot stays within the playable screen area.
+  // Update the ball position based on the device motion sensor.
+  // We also need to make sure the ball stays within the playable screen area.
   React.useEffect(() => {
     const subscription = DeviceMotion.addListener((deviceMotionMeasurment) => {
-      dotAnimation.value = {
+      ballAnimation.value = {
         x: Math.max(
           0,
           Math.min(
-            dotAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 9,
-            width - DOT_WIDTH
+            ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 9,
+            width - BALL_WIDTH
           )
         ),
         y: Math.max(
           0,
           Math.min(
-            dotAnimation.value.y + deviceMotionMeasurment.rotation.beta * 9,
-            height - DOT_WIDTH
+            ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 9,
+            height - BALL_WIDTH
           )
         ),
       };
 
-      // Check if the dot is in the target
+      // Check if the dballot is in the target
       if (
-        dotAnimation.value.x > targetAnimation.value.x + TARGET_BORDER_WIDTH &&
-        dotAnimation.value.x + DOT_WIDTH <
+        ballAnimation.value.x > targetAnimation.value.x + TARGET_BORDER_WIDTH &&
+        ballAnimation.value.x + BALL_WIDTH <
           targetAnimation.value.x + TARGET_WIDTH - TARGET_BORDER_WIDTH &&
-        dotAnimation.value.y > targetAnimation.value.y + TARGET_BORDER_WIDTH &&
-        dotAnimation.value.y + DOT_WIDTH <
+        ballAnimation.value.y > targetAnimation.value.y + TARGET_BORDER_WIDTH &&
+        ballAnimation.value.y + BALL_WIDTH <
           targetAnimation.value.y + TARGET_WIDTH - TARGET_BORDER_WIDTH
       ) {
         // If it is, move the target to a new random position
@@ -100,7 +100,7 @@ export function Game() {
   return (
     <View style={styles.container}>
       <Reanimated.View style={[styles.target, targetPosition]} />
-      <Reanimated.View style={[styles.dot, dotPosition]} />
+      <Reanimated.View style={[styles.ball, ballPosition]} />
 
       <View style={styles.scoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
@@ -125,11 +125,11 @@ const styles = StyleSheet.create({
     borderColor: "black",
     borderWidth: 1,
   },
-  dot: {
+  ball: {
     position: "absolute",
-    width: DOT_WIDTH,
-    height: DOT_WIDTH,
-    borderRadius: DOT_WIDTH,
+    width: BALL_WIDTH,
+    height: BALL_WIDTH,
+    borderRadius: BALL_WIDTH,
     backgroundColor: "red",
   },
   target: {
