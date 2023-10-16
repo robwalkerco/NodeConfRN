@@ -59,6 +59,8 @@ export function Game() {
   // Update the ball position based on the device motion sensor.
   // We also need to make sure the ball stays within the playable screen area.
   React.useEffect(() => {
+    DeviceMotion.setUpdateInterval(16);
+
     const subscription = DeviceMotion.addListener((deviceMotionMeasurment) => {
       ballAnimation.value = {
         x: Math.max(
