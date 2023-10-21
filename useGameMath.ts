@@ -37,17 +37,17 @@ export const useGameMath = ({
     ballY > targetY + targetBorderWidth &&
     ballY + ballWidth < targetY + targetWidth - targetBorderWidth;
 
-  const getConstrainedX = (targetX: number) =>
-    Math.max(0, Math.min(targetX, playableHeight - ballWidth));
+  const getConstrainedBallX = (ballX: number) =>
+    Math.max(0, Math.min(ballX, playableWidth - ballWidth));
 
-  const getConstrainedY = (targetY: number) =>
-    Math.max(0, Math.min(targetY, playableHeight - ballWidth));
+  const getConstrainedBallY = (ballY: number) =>
+    Math.max(0, Math.min(ballY, playableHeight - ballWidth));
 
   return {
     getCenterPosition,
     getRandomTargetPosition,
     getIsBallInTarget,
-    getConstrainedX,
-    getConstrainedY,
+    getConstrainedBallX,
+    getConstrainedBallY,
   };
 };

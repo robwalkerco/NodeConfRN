@@ -9,6 +9,7 @@ import Reanimated, {
 } from "react-native-reanimated";
 import {
   SafeAreaProvider,
+  SafeAreaView,
   useSafeAreaFrame,
 } from "react-native-safe-area-context";
 import { useGameMath } from "./useGameMath";
@@ -32,8 +33,8 @@ const Game = () => {
     getCenterPosition,
     getRandomTargetPosition,
     getIsBallInTarget,
-    getConstrainedX,
-    getConstrainedY,
+    getConstrainedBallX,
+    getConstrainedBallY,
   } = useGameMath({
     playableHeight: height,
     playableWidth: width,
@@ -72,10 +73,10 @@ const Game = () => {
 
     const subscription = DeviceMotion.addListener((deviceMotionMeasurment) => {
       ballAnimation.value = {
-        x: getConstrainedX(
+        x: getConstrainedBallX(
           ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 12
         ),
-        y: getConstrainedY(
+        y: getConstrainedBallY(
           ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 12
         ),
       };
@@ -111,7 +112,7 @@ const Game = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Reanimated.View style={[styles.target, targetPosition]} />
       <Reanimated.View style={[styles.ball, ballPosition]} />
 
@@ -127,16 +128,14 @@ const Game = () => {
           <Text style={styles.resetText}>Reset</Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderColor: "black",
-    borderWidth: 1,
+    backgroundColor: "white",
   },
   ball: {
     position: "absolute",
