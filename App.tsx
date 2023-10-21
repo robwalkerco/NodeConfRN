@@ -1,6 +1,8 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { DeviceMotion } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
 import Reanimated, {
   useAnimatedStyle,
   useSharedValue,
@@ -79,7 +81,7 @@ export function Game() {
         ),
       };
 
-      // Check if the dballot is in the target
+      // Check if the ball is in the target
       if (
         ballAnimation.value.x > targetAnimation.value.x + TARGET_BORDER_WIDTH &&
         ballAnimation.value.x + BALL_WIDTH <
@@ -91,8 +93,18 @@ export function Game() {
         // If it is, move the target to a new random position
         targetAnimation.value = getNewTargetPosition(width, height);
 
+        // And vibrate
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+
         // And update the scrore by 1
-        setScore((score) => score + 1);
+        setScore((score) => {
+          const newScore = score + 1;
+
+          // Announce the score
+          Speech.speak(newScore.toString());
+
+          return newScore;
+        });
       }
     });
 

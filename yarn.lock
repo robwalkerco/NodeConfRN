@@ -3124,6 +3124,11 @@ expo-font@~11.4.0:
   dependencies:
     fontfaceobserver "^2.1.0"
 
+expo-haptics@~12.4.0:
+  version "12.4.0"
+  resolved "https://registry.yarnpkg.com/expo-haptics/-/expo-haptics-12.4.0.tgz#99ad9d6a8eafb219aee022ec1412a998e1c90d71"
+  integrity sha512-eELhZOO64oJa6AtEUxosatjSENE/tQgF2rVJxDsvRdx8Vgd3uFC+FRoM3nbMVJkxDgAaP3EKOPT1zVM41sNurw==
+
 expo-keep-awake@~12.3.0:
   version "12.3.0"
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-12.3.0.tgz#c42449ae19c993274ddc43aafa618792b6aec408"
@@ -3155,6 +3160,11 @@ expo-sensors@~12.3.0:
   integrity sha512-KYL/WsJNJGTHRzpeCblPleuqaoCCHbIEQHg3NiRVVG1ismlGnisCPI6OBWYVZhfCJ0FjGvK0Z311Ac/KY8JSpA==
   dependencies:
     invariant "^2.2.4"
+
+expo-speech@~11.3.0:
+  version "11.3.0"
+  resolved "https://registry.yarnpkg.com/expo-speech/-/expo-speech-11.3.0.tgz#374c6cb4df90f226652a8958729783f7a9a60127"
+  integrity sha512-pJLh8pLuMJRZrg7hzS4JtMwvjbgfCkmoERL45A8vkq8VQFo+2GPT72BMuC9xy1sys7CGZJ8M5yMYTE5saUr1rg==
 
 expo-status-bar@~1.6.0:
   version "1.6.0"
