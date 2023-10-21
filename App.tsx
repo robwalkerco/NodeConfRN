@@ -42,11 +42,13 @@ const Game = () => {
     targetBorderWidth: TARGET_BORDER_WIDTH,
   });
 
+  // Start with a score of 0
   const [score, setScore] = React.useState(0);
 
-  // Start with the ball in the centre of the playable screen area
+  // Start with the ball in the center of the playable screen area
   const ballAnimation = useSharedValue(getCenterPosition());
 
+  // Start with the target in a random position
   const targetAnimation = useSharedValue(getRandomTargetPosition());
 
   // Create the ball styles based on the current ballAnimation value
@@ -65,16 +67,19 @@ const Game = () => {
     ],
   }));
 
-  // Update the ball position based on the device motion sensor.
-  // We also need to make sure the ball stays within the playable screen area.
+  // Setup the device motion sensor listner
   React.useEffect(() => {
+    // Set the update interval to 16ms (60fps)
     DeviceMotion.setUpdateInterval(16);
 
     const subscription = DeviceMotion.addListener((deviceMotionMeasurment) => {
+      // Update the ball position based on the device motion sensor.
       ballAnimation.value = {
+        // Change the value of the ball's x position by the device motion sensor's gamma value
         x: getConstrainedBallX(
           ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 12
         ),
+        // Change the value of the ball's y position by the device motion sensor's beta value
         y: getConstrainedBallY(
           ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 12
         ),
@@ -99,7 +104,7 @@ const Game = () => {
         setScore((score) => {
           const newScore = score + 1;
 
-          // Announce the score
+          // Announce the updated score
           Speech.speak(newScore.toString());
 
           return newScore;
