@@ -9,7 +9,6 @@ import Reanimated, {
 } from "react-native-reanimated";
 import {
   SafeAreaProvider,
-  SafeAreaView,
   useSafeAreaFrame,
 } from "react-native-safe-area-context";
 import { useGameMath } from "./useGameMath";
@@ -112,7 +111,7 @@ const Game = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Reanimated.View style={[styles.target, targetPosition]} />
       <Reanimated.View style={[styles.ball, ballPosition]} />
 
@@ -128,7 +127,7 @@ const Game = () => {
           <Text style={styles.resetText}>Reset</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
