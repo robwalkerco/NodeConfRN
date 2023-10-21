@@ -11,10 +11,7 @@ import {
   SafeAreaProvider,
   useSafeAreaFrame,
 } from "react-native-safe-area-context";
-
-const BALL_WIDTH = 20;
-const TARGET_WIDTH = BALL_WIDTH * 2;
-const TARGET_BORDER_WIDTH = 2;
+import { useGameMath } from "./useGameMath";
 
 export default function App() {
   return (
@@ -24,23 +21,33 @@ export default function App() {
   );
 }
 
-const getNewTargetPosition = (width: number, height: number) => ({
-  x: Math.random() * (width - TARGET_WIDTH),
-  y: Math.random() * (height - TARGET_WIDTH),
-});
+const BALL_WIDTH = 20;
+const TARGET_WIDTH = BALL_WIDTH * 2;
+const TARGET_BORDER_WIDTH = 2;
 
-export function Game() {
+const Game = () => {
   const { width, height } = useSafeAreaFrame();
+
+  const {
+    getCenterPosition,
+    getRandomTargetPosition,
+    getIsBallInTarget,
+    getConstrainedX,
+    getConstrainedY,
+  } = useGameMath({
+    playableHeight: height,
+    playableWidth: width,
+    ballWidth: BALL_WIDTH,
+    targetWidth: TARGET_WIDTH,
+    targetBorderWidth: TARGET_BORDER_WIDTH,
+  });
 
   const [score, setScore] = React.useState(0);
 
   // Start with the ball in the centre of the playable screen area
-  const ballAnimation = useSharedValue({
-    x: (width - BALL_WIDTH) / 2,
-    y: (height - BALL_WIDTH) / 2,
-  });
+  const ballAnimation = useSharedValue(getCenterPosition());
 
-  const targetAnimation = useSharedValue(getNewTargetPosition(width, height));
+  const targetAnimation = useSharedValue(getRandomTargetPosition());
 
   // Create the ball styles based on the current ballAnimation value
   const ballPosition = useAnimatedStyle(() => ({
@@ -65,33 +72,25 @@ export function Game() {
 
     const subscription = DeviceMotion.addListener((deviceMotionMeasurment) => {
       ballAnimation.value = {
-        x: Math.max(
-          0,
-          Math.min(
-            ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 9,
-            width - BALL_WIDTH
-          )
+        x: getConstrainedX(
+          ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 12
         ),
-        y: Math.max(
-          0,
-          Math.min(
-            ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 9,
-            height - BALL_WIDTH
-          )
+        y: getConstrainedY(
+          ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 12
         ),
       };
 
       // Check if the ball is in the target
       if (
-        ballAnimation.value.x > targetAnimation.value.x + TARGET_BORDER_WIDTH &&
-        ballAnimation.value.x + BALL_WIDTH <
-          targetAnimation.value.x + TARGET_WIDTH - TARGET_BORDER_WIDTH &&
-        ballAnimation.value.y > targetAnimation.value.y + TARGET_BORDER_WIDTH &&
-        ballAnimation.value.y + BALL_WIDTH <
-          targetAnimation.value.y + TARGET_WIDTH - TARGET_BORDER_WIDTH
+        getIsBallInTarget({
+          ballX: ballAnimation.value.x,
+          ballY: ballAnimation.value.y,
+          targetX: targetAnimation.value.x,
+          targetY: targetAnimation.value.y,
+        })
       ) {
         // If it is, move the target to a new random position
-        targetAnimation.value = getNewTargetPosition(width, height);
+        targetAnimation.value = getRandomTargetPosition();
 
         // And vibrate
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -130,7 +129,7 @@ export function Game() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
