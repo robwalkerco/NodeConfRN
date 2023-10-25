@@ -11,10 +11,7 @@ import {
   SafeAreaProvider,
   useSafeAreaFrame,
 } from "react-native-safe-area-context";
-
-const BALL_WIDTH = 20;
-const TARGET_WIDTH = BALL_WIDTH * 2;
-const TARGET_BORDER_WIDTH = 2;
+import { useGameMath } from "./useGameMath";
 
 export default function App() {
   return (
@@ -24,23 +21,35 @@ export default function App() {
   );
 }
 
-const getNewTargetPosition = (width: number, height: number) => ({
-  x: Math.random() * (width - TARGET_WIDTH),
-  y: Math.random() * (height - TARGET_WIDTH),
-});
+const BALL_WIDTH = 20;
+const TARGET_WIDTH = BALL_WIDTH * 2;
+const TARGET_BORDER_WIDTH = 2;
 
-export function Game() {
+const Game = () => {
   const { width, height } = useSafeAreaFrame();
 
-  const [score, setScore] = React.useState(0);
-
-  // Start with the ball in the centre of the playable screen area
-  const ballAnimation = useSharedValue({
-    x: (width - BALL_WIDTH) / 2,
-    y: (height - BALL_WIDTH) / 2,
+  const {
+    getCenterPosition,
+    getRandomTargetPosition,
+    getIsBallInTarget,
+    getConstrainedBallX,
+    getConstrainedBallY,
+  } = useGameMath({
+    playableHeight: height,
+    playableWidth: width,
+    ballWidth: BALL_WIDTH,
+    targetWidth: TARGET_WIDTH,
+    targetBorderWidth: TARGET_BORDER_WIDTH,
   });
 
-  const targetAnimation = useSharedValue(getNewTargetPosition(width, height));
+  // Start with a score of 0
+  const [score, setScore] = React.useState(0);
+
+  // Start with the ball in the center of the playable screen area
+  const ballAnimation = useSharedValue(getCenterPosition());
+
+  // Start with the target in a random position
+  const targetAnimation = useSharedValue(getRandomTargetPosition());
 
   // Create the ball styles based on the current ballAnimation value
   const ballPosition = useAnimatedStyle(() => ({
@@ -58,40 +67,35 @@ export function Game() {
     ],
   }));
 
-  // Update the ball position based on the device motion sensor.
-  // We also need to make sure the ball stays within the playable screen area.
+  // Setup the device motion sensor listner
   React.useEffect(() => {
+    // Set the update interval to 16ms (60fps)
     DeviceMotion.setUpdateInterval(16);
 
     const subscription = DeviceMotion.addListener((deviceMotionMeasurment) => {
+      // Update the ball position based on the device motion sensor.
       ballAnimation.value = {
-        x: Math.max(
-          0,
-          Math.min(
-            ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 9,
-            width - BALL_WIDTH
-          )
+        // Change the value of the ball's x position by the device motion sensor's gamma value
+        x: getConstrainedBallX(
+          ballAnimation.value.x + deviceMotionMeasurment.rotation.gamma * 12
         ),
-        y: Math.max(
-          0,
-          Math.min(
-            ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 9,
-            height - BALL_WIDTH
-          )
+        // Change the value of the ball's y position by the device motion sensor's beta value
+        y: getConstrainedBallY(
+          ballAnimation.value.y + deviceMotionMeasurment.rotation.beta * 12
         ),
       };
 
       // Check if the ball is in the target
       if (
-        ballAnimation.value.x > targetAnimation.value.x + TARGET_BORDER_WIDTH &&
-        ballAnimation.value.x + BALL_WIDTH <
-          targetAnimation.value.x + TARGET_WIDTH - TARGET_BORDER_WIDTH &&
-        ballAnimation.value.y > targetAnimation.value.y + TARGET_BORDER_WIDTH &&
-        ballAnimation.value.y + BALL_WIDTH <
-          targetAnimation.value.y + TARGET_WIDTH - TARGET_BORDER_WIDTH
+        getIsBallInTarget({
+          ballX: ballAnimation.value.x,
+          ballY: ballAnimation.value.y,
+          targetX: targetAnimation.value.x,
+          targetY: targetAnimation.value.y,
+        })
       ) {
         // If it is, move the target to a new random position
-        targetAnimation.value = getNewTargetPosition(width, height);
+        targetAnimation.value = getRandomTargetPosition();
 
         // And vibrate
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -100,7 +104,7 @@ export function Game() {
         setScore((score) => {
           const newScore = score + 1;
 
-          // Announce the score
+          // Announce the updated score
           Speech.speak(newScore.toString());
 
           return newScore;
@@ -130,14 +134,12 @@ export function Game() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderColor: "black",
-    borderWidth: 1,
+    backgroundColor: "white",
   },
   ball: {
     position: "absolute",
